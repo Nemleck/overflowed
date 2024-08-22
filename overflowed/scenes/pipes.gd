@@ -3,8 +3,6 @@ extends Node2D
 var pipes: Array = []
 var POLYGON;
 
-const INSCRIBED_RADIUS: int = 42
-const CIRCUMSCRIBED_RADIUS: int = INSCRIBED_RADIUS * 1.21
 const CENTER = Vector2(0, 0)
 const POINTS_AMOUNT = 10
 
@@ -14,8 +12,8 @@ func _get_vertex_coord(polygon_order: int, n: int):
 		base = - PI/4
 	
 	var gap: float = 2 * PI / polygon_order
-	var x = cos(n*gap + base) * CIRCUMSCRIBED_RADIUS
-	var y = sin(n*gap + base) * CIRCUMSCRIBED_RADIUS
+	var x = cos(n*gap + base) * POLYGON.CIRCUMSCRIBED_RADIUS
+	var y = sin(n*gap + base) * POLYGON.CIRCUMSCRIBED_RADIUS
 	
 	return Vector2(x, y)
 
@@ -25,8 +23,8 @@ func _get_middle_coord(polygon_order: int, n: int):
 		base = - PI/4
 		
 	var gap: float = 2 * PI / polygon_order
-	var x = cos((n+0.5)*gap + base) * INSCRIBED_RADIUS
-	var y = sin((n+0.5)*gap + base) * INSCRIBED_RADIUS
+	var x = cos((n+0.5)*gap + base) * POLYGON.INSCRIBED_RADIUS
+	var y = sin((n+0.5)*gap + base) * POLYGON.INSCRIBED_RADIUS
 	
 	return Vector2(x, y)
 

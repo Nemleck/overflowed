@@ -1,6 +1,10 @@
 extends Node2D
 
-var scene = preload("res://scenes/hexagon.tscn")
+var scenes = {
+	"piped": preload("res://scenes/piped_polygon.tscn"),
+	"source": preload("res://scenes/source_polygon.tscn")
+}
+
 var pipe = preload("res://scenes/pipe.tscn")
 
 var pipe_configs = [
@@ -18,28 +22,36 @@ func _ready() -> void:
 	for y in range(7):
 		map.append([])
 		for x in range(15):
-			#if randi() % 3 == 0:
+			var type = "piped"
+			if x == 0 and y == 0:
+				type = "source"
+			
+			#elif randi() % 4 == 0:
 				#map[-1].append(null)
 				#continue
 			
+			var scene = scenes[type]
+			
 			var order = 6
 			var polygon = scene.instantiate()
-			var pipe = polygon.get_node("pipes")
+			
+			if type == "piped":
+				var pipe = polygon.get_node("pipes")
 			
 			polygon.x = x
 			polygon.y = y
 			
 			if order == 3:
-				polygon.position.x = (x+0.5) * pipe.INSCRIBED_RADIUS
-				polygon.position.y = (y+0.5) * 2 * pipe.INSCRIBED_RADIUS
+				polygon.position.x = (x+0.5) * polygon.INSCRIBED_RADIUS
+				polygon.position.y = (y+0.5) * 2 * polygon.INSCRIBED_RADIUS
 				
 				if y % 2 == x % 2:
 					polygon.rotate(PI)
 				
 			elif order == 4:
 				# Position
-				polygon.position.x = (x+0.5) * 2 * pipe.INSCRIBED_RADIUS
-				polygon.position.y = (y+0.5) * 2 * pipe.INSCRIBED_RADIUS
+				polygon.position.x = (x+0.5) * 2 * polygon.INSCRIBED_RADIUS
+				polygon.position.y = (y+0.5) * 2 * polygon.INSCRIBED_RADIUS
 				
 				# Neighbors
 				if y > 0 and map[y-1][x] != null:
@@ -49,8 +61,8 @@ func _ready() -> void:
 				
 			elif order == 6:
 				# Position
-				polygon.position.x = (x * 1.5 + 1) * pipe.CIRCUMSCRIBED_RADIUS
-				polygon.position.y = (y + 0.5 * (x % 2 + 1)) * 2 * pipe.INSCRIBED_RADIUS
+				polygon.position.x = (x * 1.5 + 1) * polygon.CIRCUMSCRIBED_RADIUS
+				polygon.position.y = (y + 0.5 * (x % 2 + 1)) * 2 * polygon.INSCRIBED_RADIUS
 				
 				# Neighbors
 				if x > 0 and map[y][x-1] != null:
@@ -70,18 +82,17 @@ func _ready() -> void:
 					if x % 2 == 0:
 						polygon.add_neighbor(map[y-1][x+1], 5)
 			
-			var choice = randi_range(0, len(pipe_configs)-1)
-			
-			for pipe_entries in pipe_configs[choice]:
-				polygon.get_node("pipes").pipes.append({"entries": pipe_entries, "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
+			if type == "piped":
+				var choice = randi_range(0, len(pipe_configs)-1)
+				
+				for pipe_entries in pipe_configs[choice]:
+					polygon.get_node("pipes").pipes.append({"entries": pipe_entries, "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
 			
 			polygon._set_order(order)
 			
 			self.add_child(polygon)
 			
 			map[-1].append(polygon)
-			if y > 0:
-				map[-2][x]
 	
 	pass
 
