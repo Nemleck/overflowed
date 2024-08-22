@@ -29,6 +29,9 @@ var scenes = {
 @onready
 var pipes = self.get_node("pipes")
 
+func flow(n):
+	self.pipes.flow(n)
+
 func add_neighbor(node: Polygon, n: int):
 	self.neighbors[n] = node
 	node.neighbors[(n+3)%node.order] = self
@@ -63,6 +66,9 @@ func _on_area_2d_mouse_exited():
 	draggable = false
 	scale = Vector2(1, 1)
 
+func opposite_side(n):
+	return (n+3) % 6
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if self.to_rotate != 0:
@@ -90,12 +96,14 @@ func _process(delta: float) -> void:
 			if pipe["flow"]["percentage"] >= 100: # End flowing
 				pipe["flow"]["flowing"] = false
 				
-				pipes.pipes
+				if pipe["flow"]["to"] in self.neighbors.keys():
+					self.neighbors[pipe["flow"]["to"]].flow(opposite_side(pipe["flow"]["to"]))
 			
 			pipes.redraw()
 	
 	if draggable and Input.is_action_just_pressed("click") and queue < 5:
-		self.queue += 1
+		#self.queue += 1
+		self.pipes.flow(1)
 	
 	if self.to_rotate == 0 and queue > 0:
 		self.queue -= 1

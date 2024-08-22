@@ -41,6 +41,16 @@ func _get_bezier_points(startpoint, endpoint):
 	
 	return result
 
+func flow(n):
+	for pipe in pipes:
+		if n in pipe["entries"]:
+			var n2 = n
+			for entry in pipe["entries"]:
+				if n != entry:
+					n2 = entry
+			print_debug(n, n2)
+			pipe["flow"] = {"flowing": true, "percentage": 0, "from": n, "to": n2}
+
 func _generate_pipe(order: int, pipe_JSON):
 	var n1 = pipe_JSON["entries"][0]
 	var n2 = pipe_JSON["entries"][1]
