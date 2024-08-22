@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://df44df7sjo7mh"]
+
+[ext_resource type="Texture2D" uid="uid://dbac45vb73hxg" path="res://textures/polygons/hexagon.png" id="1_em460"]
+[ext_resource type="PackedScene" uid="uid://df0mv6f58d10x" path="res://scenes/pipe.tscn" id="2_0brff"]
+[ext_resource type="Script" path="res://scenes/pipe_in_hexagon.gd" id="3_cp5cw"]
+
+[node name="Hexagon" type="Node2D"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = -47.0
+offset_top = -40.0
+offset_right = 47.0
+offset_bottom = 40.0
+texture = ExtResource("1_em460")
+expand_mode = 1
+
+[node name="pipe" parent="." instance=ExtResource("2_0brff")]
+script = ExtResource("3_cp5cw")

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bn0r0k3we4mb3"]
+
+[ext_resource type="Texture2D" uid="uid://dft87n67ysdrb" path="res://textures/polygons/triangle.png" id="1_32v6n"]
+
+[node name="TextureRect" type="TextureRect"]
+offset_left = -58.0
+offset_top = -62.0
+offset_right = 58.3636
+offset_bottom = 38.0
+texture = ExtResource("1_32v6n")
+expand_mode = 3

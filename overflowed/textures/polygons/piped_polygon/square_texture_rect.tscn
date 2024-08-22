@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dunbyjd83e0ju"]
+
+[ext_resource type="Texture2D" uid="uid://btnyg7vah2led" path="res://textures/polygons/square.png" id="1_d8y7s"]
+
+[node name="TextureRect" type="TextureRect"]
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+texture = ExtResource("1_d8y7s")
+expand_mode = 1
