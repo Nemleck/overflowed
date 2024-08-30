@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dar6t58usw22i"]
+
+[ext_resource type="Texture2D" uid="uid://xe6wux5t8cfx" path="res://textures/polygons/geared_polygon/hexagon.png" id="1_jbv1y"]
+
+[node name="TextureRect" type="TextureRect"]
+offset_left = -50.0
+offset_top = -47.07
+offset_right = 50.0
+offset_bottom = 47.08
+texture = ExtResource("1_jbv1y")
+expand_mode = 1

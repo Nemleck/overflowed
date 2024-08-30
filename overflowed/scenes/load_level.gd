@@ -2,7 +2,8 @@ extends Node2D
 
 var scenes = {
 	"piped": preload("res://scenes/piped_polygon.tscn"),
-	"source": preload("res://scenes/source_polygon.tscn")
+	"source": preload("res://scenes/source_polygon.tscn"),
+	"geared": preload("res://scenes/geared_polygon.tscn")
 }
 
 var pipe = preload("res://scenes/pipe.tscn")
@@ -22,7 +23,7 @@ func _ready() -> void:
 	for y in range(7):
 		map.append([])
 		for x in range(15):
-			var type = "piped"
+			var type = ["piped", "piped", "geared"][randi_range(0, 2)]
 			if x == 0 and y == 0:
 				type = "source"
 			
@@ -35,7 +36,7 @@ func _ready() -> void:
 			var order = 6
 			var polygon = scene.instantiate()
 			
-			if type == "piped":
+			if type in ["piped", "geared"]:
 				var pipe = polygon.get_node("pipes")
 			
 			polygon.x = x
@@ -82,7 +83,7 @@ func _ready() -> void:
 					if x % 2 == 0:
 						polygon.add_neighbor(map[y-1][x+1], 5)
 			
-			if type == "piped":
+			if type in ["piped", "geared"]:
 				var choice = randi_range(0, len(pipe_configs)-1)
 				
 				for pipe_entries in pipe_configs[choice]:

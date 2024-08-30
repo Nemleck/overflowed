@@ -29,6 +29,9 @@ func flow(n):
 func rotatable():
 	return false
 
+func gearable():
+	return false
+
 func _set_order(order: int):
 	self.order = order
 	

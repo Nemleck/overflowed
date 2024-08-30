@@ -46,7 +46,7 @@ func flow(n):
 			for entry in pipe["entries"]:
 				if n != entry:
 					n2 = entry
-			print_debug(n, n2)
+			
 			pipe["flow"] = {"flowing": true, "percentage": 0, "from": n, "to": n2}
 
 func _generate_pipe(order: int, pipe_JSON):
@@ -73,9 +73,10 @@ func _draw():
 	for pipe in pipes:
 		_generate_pipe(POLYGON.order, pipe)
 	
-	for i in range(POLYGON.order):
-		draw_line(self._get_vertex_coord(POLYGON.order, i), self._get_vertex_coord(POLYGON.order, i+1), Color(), 3)
-		#draw_line(self._get_middle_coord(6, i), self._get_middle_coord(6, i+1), Color(), 3)
+	if not POLYGON.gearable():
+		for i in range(POLYGON.order):
+			draw_line(self._get_vertex_coord(POLYGON.order, i), self._get_vertex_coord(POLYGON.order, i+1), Color(), 3)
+			#draw_line(self._get_middle_coord(6, i), self._get_middle_coord(6, i+1), Color(), 3)
 	
 	#draw_string(ARIAL, CENTER, str([POLYGON.x, POLYGON.y]), HORIZONTAL_ALIGNMENT_CENTER, -1, 16, Color(255, 255, 255))
 

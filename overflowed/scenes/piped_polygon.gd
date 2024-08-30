@@ -16,6 +16,9 @@ var pipes = self.get_node("pipes")
 func flow(n):
 	self.pipes.flow(n)
 
+func schedule_rotate(angle):
+	self.to_rotate = angle
+
 func rotatable():
 	return true
 
@@ -29,16 +32,7 @@ func _on_area_2d_mouse_exited():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if self.to_rotate != 0:
-		var angle: float = 0
-		
-		if abs(self.to_rotate) > delta * ROTATE_SPEED:
-			angle = delta * ROTATE_SPEED * sign(self.to_rotate)
-		else:
-			angle = self.to_rotate
-		
-		self.to_rotate -= angle
-		self.rotate(angle)
+	self._process_rotation(delta)
 	
 	for pipe in pipes.pipes:
 		if pipe["flow"]["flowing"]:
@@ -61,12 +55,23 @@ func _process(delta: float) -> void:
 	
 	if draggable and Input.is_action_just_pressed("click") and queue < 5:
 		self.queue += 1
+
+func _process_rotation(delta):
+	if self.to_rotate != 0:
+		var angle: float = 0
+		
+		if abs(self.to_rotate) > delta * ROTATE_SPEED:
+			angle = delta * ROTATE_SPEED * sign(self.to_rotate)
+		else:
+			angle = self.to_rotate
+		
+		self.to_rotate -= angle
+		self.rotate(angle)
 	
 	if self.to_rotate == 0 and queue > 0:
 		self.queue -= 1
 		
-		self.to_rotate = 2*PI/self.order
-		for key in self.neighbors.keys():
-			if self.neighbors[key].rotatable():
-				self.neighbors[key].to_rotate = -2*PI/self.order
-				print_debug(key)
+		self.schedule_rotate(2*PI/self.order)
+		#for key in self.neighbors.keys():
+			#if self.neighbors[key].rotatable():
+				#self.neighbors[key].to_rotate = -2*PI/self.order
