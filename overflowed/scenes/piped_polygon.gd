@@ -67,6 +67,14 @@ func _process_rotation(delta):
 		
 		self.to_rotate -= angle
 		self.rotate(angle)
+		
+		if self.to_rotate == 0:
+			for pipe in self.pipes.pipes:
+				for i in range(len(pipe["entries"])):
+					pipe["entries"][i] = (pipe["entries"][i] + int(sign(angle))) % self.order
+			
+			self.rotation = 0
+			self.pipes.redraw()
 	
 	if self.to_rotate == 0 and queue > 0:
 		self.queue -= 1

@@ -23,7 +23,7 @@ func _ready() -> void:
 	for y in range(7):
 		map.append([])
 		for x in range(15):
-			var type = ["piped", "piped", "geared"][randi_range(0, 2)]
+			var type = ["piped", "piped"][randi_range(0, 1)]
 			if x == 0 and y == 0:
 				type = "source"
 			
@@ -87,7 +87,7 @@ func _ready() -> void:
 				var choice = randi_range(0, len(pipe_configs)-1)
 				
 				for pipe_entries in pipe_configs[choice]:
-					polygon.get_node("pipes").pipes.append({"entries": pipe_entries, "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
+					polygon.get_node("pipes").pipes.append({"entries": pipe_entries.duplicate(), "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
 			
 			polygon._set_order(order)
 			
