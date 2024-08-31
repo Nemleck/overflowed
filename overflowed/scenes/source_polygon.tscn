@@ -1,7 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://df44df7sjo7mh"]
+[gd_scene load_steps=3 format=3 uid="uid://df44df7sjo7mh"]
 
 [ext_resource type="Script" path="res://scenes/source_polygon.gd" id="1_k8347"]
 
-[node name="Polygon" type="Node2D"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_ol1w7"]
+radius = 42.19
+
+[node name="Polygon" type="Area2D"]
 script = ExtResource("1_k8347")
 metadata/test = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(0.88, 0.88)
+shape = SubResource("CircleShape2D_ol1w7")
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

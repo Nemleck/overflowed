@@ -8,25 +8,19 @@ var scenes = {
 
 var pipe = preload("res://scenes/pipe.tscn")
 
-var pipe_configs = [
-	[[1, 3], [3, 5], [5, 1]], 
-	[[0, 5]], 
-	[[0, 2]], 
-	[[0,1], [2,3], [4,5]],
-	[[0,2], [3,5]],
-	[[0,3], [1,4]],
-	[[0,3]],
-	[[0,3], [1,2], [4,5]]
-]
+const HEIGHT = 11
+const WIDTH = 24
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	var got_source = false
 	var map = []
-	for y in range(7):
+	for y in range(HEIGHT):
 		map.append([])
-		for x in range(15):
-			var type = ["piped", "piped", "geared"][randi_range(0, 2)]
-			if x == 0 and y == 0:
+		for x in range(WIDTH):
+			var type = ["piped", "piped", "piped", "geared"][randi_range(0, 3)]
+			if (not got_source) and randi_range(0, WIDTH*HEIGHT) == 0:
+				got_source = true
 				type = "source"
 			
 			#elif randi() % 4 == 0:
@@ -81,15 +75,9 @@ func _ready() -> void:
 					if x % 2 == 0:
 						polygon.add_neighbor(map[y-1][x-1], 3)
 				
-				if x < 14 and y > 0 and map[y-1][x+1] != null:
+				if x < WIDTH-1 and y > 0 and map[y-1][x+1] != null:
 					if x % 2 == 0:
 						polygon.add_neighbor(map[y-1][x+1], 5)
-			
-			if type in ["piped", "geared"]:
-				var choice = randi_range(0, len(pipe_configs)-1)
-				
-				for pipe_entries in pipe_configs[choice]:
-					polygon.get_node("pipes").pipes.append({"entries": pipe_entries.duplicate(), "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
 			
 			polygon._set_order(order)
 			

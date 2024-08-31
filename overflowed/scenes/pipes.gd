@@ -71,7 +71,12 @@ func _generate_pipe(order: int, pipe_JSON):
 const ARIAL = preload("res://arial.ttf")
 func _draw():
 	for pipe in pipes:
-		_generate_pipe(POLYGON.order, pipe)
+		if pipe["flow"]["percentage"] == 0:
+			_generate_pipe(POLYGON.order, pipe)
+	
+	for pipe in pipes:
+		if pipe["flow"]["percentage"] > 0:
+			_generate_pipe(POLYGON.order, pipe)
 	
 	if not POLYGON.gearable():
 		for i in range(POLYGON.order):

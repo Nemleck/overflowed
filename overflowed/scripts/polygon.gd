@@ -23,11 +23,6 @@ func add_neighbor(node: Polygon, n: int):
 	
 	# TODO : get_n_from_angle(node) -> take opposite
 
-const FLOW_SPEED = 80
-func flow(n):
-	if self.flowable():
-		self.pipes.flow(n)
-
 func _set_order(order: int):
 	self.order = order
 	
@@ -54,14 +49,44 @@ func _process(delta: float) -> void:
 	
 	if self.flowable():
 		self._process_flowing(delta)
+	
+	if Input.is_action_just_pressed("ctrl") and draggable:
+		_init_pipes()
+		self.pipes.redraw()
 
 # ---------------------------- FLOWING  ----------------------------
+
+const FLOW_SPEED = 80
+func flow(n):
+	if self.flowable():
+		self.pipes.flow(n)
+
+var pipe_configs = [
+	[[1, 3], [3, 5], [5, 1]], 
+	[[0, 5]], 
+	[[0, 2]], 
+	[[0,1], [2,3], [4,5]],
+	[[0,2], [3,5]],
+	[[0,3], [1,4]],
+	[[0,3]],
+	[[0,3], [1,2], [4,5]],
+	[[0,2], [0,3], [0,4]],
+	[[0,1], [0,5], [3,2], [3,4]]
+]
 
 # Dynamic Variables
 var pipes = null
 func _ready() -> void:
 	if self.flowable():
 		self.pipes = self.get_node("pipes")
+		self._init_pipes()
+
+func _init_pipes():
+	var choice = randi_range(0, len(pipe_configs)-1)
+	
+	self.pipes.pipes = []
+	for pipe_entries in pipe_configs[choice]:
+		self.pipes.pipes.append({"entries": pipe_entries.duplicate(), "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
 
 # Properties
 func flowable():
@@ -72,8 +97,12 @@ func _process_flowing(delta: float) -> void:
 		if pipe["flow"]["flowing"]:
 			var diff: float = 0
 			
-			if 100-pipe["flow"]["percentage"] > delta * FLOW_SPEED:
-				diff = delta * FLOW_SPEED # Add delta * Speed
+			var space_multiplicator = 1
+			if Input.is_action_pressed("space"):
+				space_multiplicator = 3
+			
+			if 100-pipe["flow"]["percentage"] > delta * FLOW_SPEED * space_multiplicator:
+				diff = delta * FLOW_SPEED * space_multiplicator # Add delta * Speed
 			else:
 				diff = pipe["flow"]["percentage"] # Add only what remains
 			
