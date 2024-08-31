@@ -47,6 +47,14 @@ func _set_order(order: int):
 func opposite_side(n):
 	return (n+3) % 6
 
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	if self.rotatable():
+		self._process_rotation(delta)
+	
+	if self.flowable():
+		self._process_flowing(delta)
+
 # ---------------------------- FLOWING  ----------------------------
 
 # Dynamic Variables
@@ -79,14 +87,6 @@ func _process_flowing(delta: float) -> void:
 			
 			pipes.redraw()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	if self.rotatable():
-		self._process_rotation(delta)
-	
-	if self.flowable():
-		self._process_flowing(delta)
-
 # ---------------------------- ROTATION ----------------------------
 
 # Dynamic ariables
@@ -105,11 +105,11 @@ func gearable():
 
 # Mouse interaction
 func _on_area_2d_mouse_entered():
-	draggable = true
+	self.draggable = true
 	self.scale = Vector2(1.05, 1.05)
 
 func _on_area_2d_mouse_exited():
-	draggable = false
+	self.draggable = false
 	self.scale = Vector2(1, 1)
 
 # Rotation behavior
@@ -121,9 +121,9 @@ func schedule_rotate(angle, i=0):
 	self.to_rotate = angle
 	
 	# i protects from moving too many polygons at a time
-	if i < 4:
+	if self.gearable() and i < 4:
 		for key in self.neighbors.keys():
-			if self.neighbors[key].gearable():
+			if self.neighbors[key].to_rotate == 0 and self.neighbors[key].gearable():
 				self.neighbors[key].schedule_rotate(-angle, i+1)
 
 func _process_rotation(delta):
@@ -132,8 +132,11 @@ func _process_rotation(delta):
 	"""
 	
 	# Schedule several rotations at a time
-	if draggable and Input.is_action_just_pressed("click") and self.rotation_queue < 5:
-		self.rotation_queue += 1
+	if self.draggable:
+		if self.rotation_queue < 5 and Input.is_action_just_pressed("click"):
+			self.rotation_queue += 1
+		elif self.rotation_queue > -5 and Input.is_action_just_pressed("right_click"):
+			self.rotation_queue -= 1
 	
 	# Rotate the polygon
 	if self.to_rotate != 0:
@@ -150,12 +153,19 @@ func _process_rotation(delta):
 		if self.to_rotate == 0:
 			for pipe in self.pipes.pipes:
 				for i in range(len(pipe["entries"])):
-					pipe["entries"][i] = (pipe["entries"][i] + int(sign(angle))) % self.order
+					# Trick to avoid negative result with gd script's modulo
+					pipe["entries"][i] = ( (pipe["entries"][i] + int(sign(angle))) % self.order + self.order ) % self.order
+			
+			print_debug(self.pipes.pipes[0]["entries"])
 			
 			self.rotation = 0
 			self.pipes.redraw()
 	
-	if self.to_rotate == 0 and rotation_queue > 0:
-		self.rotation_queue -= 1
-		
-		self.schedule_rotate(2*PI/self.order)
+	# Start rotation when queue isn't empty
+	if self.to_rotate == 0:
+		if self.rotation_queue > 0:
+			self.rotation_queue -= 1
+			self.schedule_rotate(2*PI/self.order)
+		elif self.rotation_queue < 0:
+			self.rotation_queue += 1
+			self.schedule_rotate(-2*PI/self.order)

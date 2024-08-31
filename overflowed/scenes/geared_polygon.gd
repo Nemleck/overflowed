@@ -11,5 +11,8 @@ func scenes():
 func flowable():
 	return true
 
+func rotatable():
+	return true
+	
 func gearable():
 	return true

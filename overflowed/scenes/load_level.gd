@@ -25,7 +25,7 @@ func _ready() -> void:
 	for y in range(7):
 		map.append([])
 		for x in range(15):
-			var type = ["piped", "piped"][randi_range(0, 1)]
+			var type = ["piped", "piped", "geared"][randi_range(0, 2)]
 			if x == 0 and y == 0:
 				type = "source"
 			
