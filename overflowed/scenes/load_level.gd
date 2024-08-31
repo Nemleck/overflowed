@@ -14,7 +14,9 @@ var pipe_configs = [
 	[[0, 2]], 
 	[[0,1], [2,3], [4,5]],
 	[[0,2], [3,5]],
-	[[0,3], [1,4]]
+	[[0,3], [1,4]],
+	[[0,3]],
+	[[0,3], [1,2], [4,5]]
 ]
 
 # Called when the node enters the scene tree for the first time.
