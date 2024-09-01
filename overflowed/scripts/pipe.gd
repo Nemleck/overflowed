@@ -63,16 +63,20 @@ func _process_flowing(delta: float, pipe_neighbors):
 					new_fragments.append(null)
 			else:
 				var previous_fragments = []
+				var is_previous_from_neighbor = false
 				if i > 0:
 					previous_fragments = [new_fragments[i-1]]
 				else:
 					previous_fragments = neighbor_fragments[0]
+					is_previous_from_neighbor = true
 				
 				var next_fragments = []
+				var is_next_from_neighbor = false
 				if i < len(self.fragments)-1:
 					next_fragments = [self.fragments[i+1]]
 				else:
 					next_fragments = neighbor_fragments[1]
+					is_next_from_neighbor = true
 				
 				# Pick random fragments
 				
@@ -90,30 +94,40 @@ func _process_flowing(delta: float, pipe_neighbors):
 				
 				# Move fragments
 				
-				if previous == null and fragment.direction == -1:
-					new_fragments[i] = null
-					
-					if i == 0:
-						# Give to neighbor
-						if pipe_neighbors[0] != null:
-							pipe_neighbors[0].flow(Utils.opposite_side(self.entries[0]), fragment.content["color"])
+				if fragment.direction == -1:
+					if previous == null:
+						new_fragments[i] = null
+						
+						if i == 0:
+							# Give to neighbor
+							if pipe_neighbors[0] != null:
+								pipe_neighbors[0].flow(Utils.opposite_side(self.entries[0]), fragment.content["color"])
+							else:
+								new_fragments[i] = fragment
 						else:
-							new_fragments[i] = fragment
+							new_fragments[i-1] = fragment
 					else:
-						new_fragments[i-1] = fragment
-				elif next == null and fragment.direction == 1:
-					new_fragments[i] = null
-					
-					if i+1 == len(self.fragments):
-						# Give to neighbor
-						if pipe_neighbors[1] != null:
-							pipe_neighbors[1].flow(Utils.opposite_side(self.entries[1]), fragment.content["color"])
+						if is_previous_from_neighbor == false:
+							previous.direction = fragment.direction
+						new_fragments[i] = fragment
+						
+				elif fragment.direction == 1:
+					if next == null:
+						new_fragments[i] = null
+						
+						if i+1 == len(self.fragments):
+							# Give to neighbor
+							if pipe_neighbors[1] != null:
+								pipe_neighbors[1].flow(Utils.opposite_side(self.entries[1]), fragment.content["color"])
+							else:
+								new_fragments[i] = fragment
 						else:
-							new_fragments[i] = fragment
+							new_fragments[i+1] = fragment
 					else:
-						new_fragments[i+1] = fragment
-				else:
-					new_fragments[i] = fragment
+						# Avoid conflicts between two polygons directions
+						if is_next_from_neighbor == false:
+							next.direction = fragment.direction
+						new_fragments[i] = fragment
 		
 		self.fragments = new_fragments
 			
