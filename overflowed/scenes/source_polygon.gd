@@ -1,6 +1,9 @@
 extends Polygon
 class_name Source_Polygon
 
+var colors = [Color.CYAN, Color.AQUAMARINE, Color.CRIMSON, Color.BLUE_VIOLET, Color.BURLYWOOD, Color.CHOCOLATE, Color.DARK_GREEN]
+var color = colors[randi_range(0, len(colors)-1)]
+
 func scenes():
 	return {
 		"triangle": null,#preload("res://textures/polygons/piped_polygon/piped_triangle_texture_rect.tscn"),
@@ -17,7 +20,7 @@ func _process(delta: float) -> void:
 	if self.draggable and Input.is_action_just_pressed("click"):
 		for key in neighbors.keys():
 			if neighbors[key] != null:
-				neighbors[key].flow(opposite_side(key))
+				neighbors[key].flow(opposite_side(key), self.color)
 
 
 func _on_mouse_entered() -> void:

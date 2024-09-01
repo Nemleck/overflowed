@@ -57,9 +57,9 @@ func _process(delta: float) -> void:
 # ---------------------------- FLOWING  ----------------------------
 
 const FLOW_SPEED = 80
-func flow(n):
+func flow(n, color):
 	if self.flowable():
-		self.pipes.flow(n)
+		self.pipes.flow(n, color)
 
 var pipe_configs = [
 	[[1, 3], [3, 5], [5, 1]], 
@@ -83,38 +83,39 @@ func _ready() -> void:
 
 func _init_pipes():
 	var choice = randi_range(0, len(pipe_configs)-1)
-	
-	self.pipes.pipes = []
-	for pipe_entries in pipe_configs[choice]:
-		self.pipes.pipes.append({"entries": pipe_entries.duplicate(), "flow": {"flowing": false, "percentage": 0, "from": 0, "to": 1}})
+	self.pipes._init_pipes(pipe_configs[choice])
 
 # Properties
 func flowable():
 	return false
 
+func get_pipes_from_entry(n):
+	return self.pipes.get_pipes_from_entry(n)
+
 func _process_flowing(delta: float) -> void:
 	for pipe in pipes.pipes:
-		if pipe["flow"]["flowing"]:
-			var diff: float = 0
-			
-			var space_multiplicator = 1
-			if Input.is_action_pressed("space"):
-				space_multiplicator = 3
-			
-			if 100-pipe["flow"]["percentage"] > delta * FLOW_SPEED * space_multiplicator:
-				diff = delta * FLOW_SPEED * space_multiplicator # Add delta * Speed
-			else:
-				diff = pipe["flow"]["percentage"] # Add only what remains
-			
-			pipe["flow"]["percentage"] += diff # Add here
-			
-			if pipe["flow"]["percentage"] >= 100: # End flowing
-				pipe["flow"]["flowing"] = false
+		# TODO : Avoid to do this every frame
+		var neighbor_fragments = []
+		
+		for i in [0, -1]:
+			var pipe_fragments = []
+			if pipe.entries[i] in self.neighbors.keys():
+				var neighbor = self.neighbors[pipe.entries[i]]
 				
-				if pipe["flow"]["to"] in self.neighbors.keys():
-					self.neighbors[pipe["flow"]["to"]].flow(opposite_side(pipe["flow"]["to"]))
-			
-			pipes.redraw()
+				if neighbor != null and neighbor.pipes != null:
+					var neighbor_pipes = neighbor.pipes.get_pipes_from_entry(opposite_side(pipe.entries[i]))
+					
+					for n_pipe in neighbor_pipes:
+						pipe_fragments.append(n_pipe.fragment_from_entry(opposite_side(pipe.entries[i])))
+					
+			neighbor_fragments.append(pipe_fragments)
+		
+		pipe._schedule_flowing(delta, neighbor_fragments)
+	
+	for pipe in self.pipes.pipes:
+		pipe._process_flowing()
+	
+	self.pipes.redraw()
 
 # ---------------------------- ROTATION ----------------------------
 
@@ -181,12 +182,10 @@ func _process_rotation(delta):
 		
 		if self.to_rotate == 0:
 			for pipe in self.pipes.pipes:
-				for i in range(len(pipe["entries"])):
+				for i in range(len(pipe.entries)):
 					# Trick to avoid negative result with gd script's modulo
-					pipe["entries"][i] = ( (pipe["entries"][i] + int(sign(angle))) % self.order + self.order ) % self.order
-			
-			print_debug(self.pipes.pipes[0]["entries"])
-			
+					pipe.entries[i] = ( (pipe.entries[i] + int(sign(angle))) % self.order + self.order ) % self.order
+					
 			self.rotation = 0
 			self.pipes.redraw()
 	

@@ -4,7 +4,12 @@ var pipes: Array = []
 var POLYGON;
 
 const CENTER = Vector2(0, 0)
-const POINTS_AMOUNT = 10
+
+func _init_pipes(pipes_entries):
+	self.pipes = []
+	for pipe_entries in pipes_entries:
+		var pipe = Pipe.new(pipe_entries)
+		self.pipes.append(pipe)
 
 func _get_vertex_coord(polygon_order: int, n: int):
 	var base = 0
@@ -28,10 +33,10 @@ func _get_middle_coord(polygon_order: int, n: int):
 	
 	return Vector2(x, y)
 
-func _get_bezier_points(startpoint, endpoint):
+func _get_bezier_points(startpoint, endpoint, amount):
 	var result = []
-	for i in range(POINTS_AMOUNT+1):
-		var t = i*1.0/POINTS_AMOUNT
+	for i in range(amount):
+		var t = i*1.0/(amount-1)
 		
 		var q0 = startpoint.lerp(CENTER, t)
 		var q1 = CENTER.lerp(endpoint, t)
@@ -39,30 +44,33 @@ func _get_bezier_points(startpoint, endpoint):
 	
 	return result
 
-func flow(n):
+func flow(n, color):
 	for pipe in pipes:
-		if n in pipe["entries"]:
-			var n2 = n
-			for entry in pipe["entries"]:
-				if n != entry:
-					n2 = entry
-			
-			pipe["flow"] = {"flowing": true, "percentage": 0, "from": n, "to": n2}
+		if n in pipe.entries:
+			pipe.flow(n, color)
+	self.redraw()
 
-func _generate_pipe(order: int, pipe_JSON):
-	var n1 = pipe_JSON["entries"][0]
-	var n2 = pipe_JSON["entries"][1]
+func get_pipes_from_entry(n):
+	var result = []
+	for pipe in pipes:
+		if n in pipe.entries:
+			result.append(pipe)
+	
+	return result # TODO : Optimization (called every tick) by indexing
+
+func _generate_pipe(order: int, pipe):
+	var n1 = pipe.entries[0]
+	var n2 = pipe.entries[1]
 	
 	var startpoint: Vector2 = self._get_middle_coord(order, n1)
 	var endpoint: Vector2 = self._get_middle_coord(order, n2)
 	
-	var points: PackedVector2Array = self._get_bezier_points(startpoint, endpoint)
+	var points: PackedVector2Array = self._get_bezier_points(startpoint, endpoint, len(pipe.fragments))
 	var colors: PackedColorArray = []
 	
 	for i in range(len(points)):
-		if ( pipe_JSON["flow"]["from"] == n1 and i*100/len(points) < pipe_JSON["flow"]["percentage"] ) or\
-		   ( pipe_JSON["flow"]["from"] == n2 and i*100/len(points) > 100-pipe_JSON["flow"]["percentage"] ):
-			colors.append(Color.CYAN)
+		if pipe.fragments[i].content != null:
+			colors.append(pipe.fragments[i].content["color"])
 		else:
 			colors.append(Color(0, 0, 0))
 	
@@ -71,12 +79,7 @@ func _generate_pipe(order: int, pipe_JSON):
 const ARIAL = preload("res://arial.ttf")
 func _draw():
 	for pipe in pipes:
-		if pipe["flow"]["percentage"] == 0:
-			_generate_pipe(POLYGON.order, pipe)
-	
-	for pipe in pipes:
-		if pipe["flow"]["percentage"] > 0:
-			_generate_pipe(POLYGON.order, pipe)
+		_generate_pipe(POLYGON.order, pipe)
 	
 	if not POLYGON.gearable():
 		for i in range(POLYGON.order):
@@ -85,13 +88,15 @@ func _draw():
 	
 	#draw_string(ARIAL, CENTER, str([POLYGON.x, POLYGON.y]), HORIZONTAL_ALIGNMENT_CENTER, -1, 16, Color(255, 255, 255))
 
+func _process_flowing(delta: float):
+	for pipe in self.pipes:
+		pipe._process_flowing(delta)
+	
+	self.redraw()
+
 func redraw():
 	queue_redraw()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	POLYGON = self.get_parent()
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass

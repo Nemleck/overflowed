@@ -13,15 +13,14 @@ const WIDTH = 24
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	var got_source = false
 	var map = []
 	for y in range(HEIGHT):
 		map.append([])
 		for x in range(WIDTH):
 			var type = ["piped", "piped", "piped", "geared"][randi_range(0, 3)]
-			if (not got_source) and randi_range(0, WIDTH*HEIGHT) == 0:
-				got_source = true
+			if randi_range(0, WIDTH) == 0:
 				type = "source"
+				print_debug(x, y)
 			
 			#elif randi() % 4 == 0:
 				#map[-1].append(null)
