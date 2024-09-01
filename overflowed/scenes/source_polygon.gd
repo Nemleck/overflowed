@@ -17,10 +17,10 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if self.draggable and Input.is_action_just_pressed("click"):
+	if self.draggable and Input.is_action_pressed("click"):
 		for key in neighbors.keys():
 			if neighbors[key] != null:
-				neighbors[key].flow(opposite_side(key), self.color)
+				neighbors[key].flow(Utils.opposite_side(key), self.color)
 
 
 func _on_mouse_entered() -> void:

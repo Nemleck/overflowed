@@ -69,7 +69,7 @@ func _generate_pipe(order: int, pipe):
 	var colors: PackedColorArray = []
 	
 	for i in range(len(points)):
-		if pipe.fragments[i].content != null:
+		if pipe.fragments[i] != null:
 			colors.append(pipe.fragments[i].content["color"])
 		else:
 			colors.append(Color(0, 0, 0))
@@ -87,12 +87,6 @@ func _draw():
 			#draw_line(self._get_middle_coord(6, i), self._get_middle_coord(6, i+1), Color(), 3)
 	
 	#draw_string(ARIAL, CENTER, str([POLYGON.x, POLYGON.y]), HORIZONTAL_ALIGNMENT_CENTER, -1, 16, Color(255, 255, 255))
-
-func _process_flowing(delta: float):
-	for pipe in self.pipes:
-		pipe._process_flowing(delta)
-	
-	self.redraw()
 
 func redraw():
 	queue_redraw()

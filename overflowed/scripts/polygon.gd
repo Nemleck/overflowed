@@ -39,9 +39,6 @@ func _set_order(order: int):
 	self.add_child(textureRect)
 	self.move_child(textureRect, 0)
 
-func opposite_side(n):
-	return (n+3) % 6
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if self.rotatable():
@@ -90,30 +87,22 @@ func flowable():
 	return false
 
 func get_pipes_from_entry(n):
-	return self.pipes.get_pipes_from_entry(n)
+	if self.flowable():
+		return self.pipes.get_pipes_from_entry(n)
+	else:
+		return []
 
 func _process_flowing(delta: float) -> void:
 	for pipe in pipes.pipes:
-		# TODO : Avoid to do this every frame
-		var neighbor_fragments = []
+		var pipe_neighbors = []
+		for entry in pipe.entries:
+			# If the neighbor exists and it has a pipe in this entry
+			if entry in self.neighbors.keys() and len(self.neighbors[entry].get_pipes_from_entry(Utils.opposite_side(entry))) > 0:
+				pipe_neighbors.append(self.neighbors[entry])
+			else:
+				pipe_neighbors.append(null)
 		
-		for i in [0, -1]:
-			var pipe_fragments = []
-			if pipe.entries[i] in self.neighbors.keys():
-				var neighbor = self.neighbors[pipe.entries[i]]
-				
-				if neighbor != null and neighbor.pipes != null:
-					var neighbor_pipes = neighbor.pipes.get_pipes_from_entry(opposite_side(pipe.entries[i]))
-					
-					for n_pipe in neighbor_pipes:
-						pipe_fragments.append(n_pipe.fragment_from_entry(opposite_side(pipe.entries[i])))
-					
-			neighbor_fragments.append(pipe_fragments)
-		
-		pipe._schedule_flowing(delta, neighbor_fragments)
-	
-	for pipe in self.pipes.pipes:
-		pipe._process_flowing()
+		pipe._process_flowing(delta, pipe_neighbors)
 	
 	self.pipes.redraw()
 
